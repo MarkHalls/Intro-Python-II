@@ -46,14 +46,16 @@ room["narrow"].n_to = room["treasure"]
 room["treasure"].s_to = room["narrow"]
 
 # create some items
-item = Item("map", "I'm a map")
-room["outside"].set_items(item)
+room["outside"].set_items(Item("map", "I'm a map."))
+room["outside"].set_items(Item("torch", "A fresh torch, should last a while."))
+
 #
 # Main
 #
 
 # Make a new player object that is currently in the 'outside' room.
-player = Player("Mae", room["outside"])
+player_name = input("Character Name? ")
+player = Player(player_name, room["outside"])
 
 # Write a loop that:
 #
@@ -65,49 +67,11 @@ player = Player("Mae", room["outside"])
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+
+# print the room on first load
 print(player.current_room)
 
 while True:
-    move = None
-
     cmd = input("\n  ~~> ")
 
-    directions = ("n", "s", "e", "w")
-
-    if cmd.lower() in directions:
-        move = player.move(cmd.lower())
-
-    elif "take" in cmd.lower():
-        item_name = re.sub(re.escape("take "), "", cmd, flags=re.IGNORECASE)
-        player.take_item(item_name)
-
-    elif "drop" in cmd.lower():
-        item_name = re.sub(re.escape("drop "), "", cmd, flags=re.IGNORECASE)
-        player.drop_item(item_name)
-
-    elif "i" in cmd.lower():
-        player.get_inventory()
-
-    elif cmd in ("Q", "q", "quit", "exit"):
-        exit(0)
-
-    elif cmd in ("?", "help", "h"):
-        available_commands = [
-            "Command List",
-            "n - Move North",
-            "n - Move North",
-            "n - Move North",
-            "n - Move North",
-            "i - View inventory",
-            "take <item> - Take an item from the room",
-            "q - exit the game",
-            "h - display this text",
-        ]
-        for command in available_commands:
-            print_wrap(command)
-
-    else:
-        pass
-
-    if move and "Error" in move:
-        print_wrap(move.replace("Error: ", ""))
+    player.commands(cmd)
