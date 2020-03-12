@@ -57,8 +57,7 @@ class Room:
             if item.name == item_name:
                 self.items.remove(item)
                 return item
-            else:
-                print_wrap(f"You searched the room but couldn't find {item_name}")
+        print_wrap(f"You searched the room but couldn't find {item_name}")
 
     def get_items(self):
         for item in self.items:
