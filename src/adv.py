@@ -1,18 +1,9 @@
 from room import Room
 from player import Player
-from textwrap import TextWrapper
+from print_wrap import print_wrap
+from item import Item
 
-# initialize TextWrapper with 40 character width
-wrapper = TextWrapper(
-    initial_indent="  ", subsequent_indent="  ", drop_whitespace=False, width=40
-)
-
-# custom print command for wrapped text
-def print_wrap(text):
-    line_list = wrapper.wrap(text)
-    for line in line_list:
-        print(line)
-
+import re
 
 # Declare all the rooms
 
@@ -54,6 +45,9 @@ room["narrow"].w_to = room["foyer"]
 room["narrow"].n_to = room["treasure"]
 room["treasure"].s_to = room["narrow"]
 
+# create some items
+item = Item("map", "I'm a map")
+room["outside"].set_items(item)
 #
 # Main
 #
@@ -71,37 +65,47 @@ player = Player("Mae", room["outside"])
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+print(player.current_room)
 
 while True:
     move = None
-    room_details = [
-        "****************************",
-        f"Room: {player.current_room.name}",
-        " ",
-        "Details:",
-        f"{player.current_room.description}",
-        " ",
-    ]
 
-    for line in room_details:
-        print_wrap(line)
+    cmd = input("\n  ~~> ")
 
-    # get directions and print them to the screen
-    for line in player.current_room.get_directions():
-        print_wrap(line)
+    directions = ("n", "s", "e", "w")
 
-    cmd = input("\n  Enter a command: ")
+    if cmd.lower() in directions:
+        move = player.move(cmd.lower())
 
-    if cmd in ("N", "n"):
-        move = player.move(player.current_room.n_to)
-    elif cmd in ("W", "w"):
-        move = player.move(player.current_room.w_to)
-    elif cmd in ("E", "e"):
-        move = player.move(player.current_room.e_to)
-    elif cmd in ("S", "s"):
-        move = player.move(player.current_room.s_to)
+    elif "take" in cmd.lower():
+        item_name = re.sub(re.escape("take "), "", cmd, flags=re.IGNORECASE)
+        player.take_item(item_name)
+
+    elif "drop" in cmd.lower():
+        item_name = re.sub(re.escape("drop "), "", cmd, flags=re.IGNORECASE)
+        player.drop_item(item_name)
+
+    elif "i" in cmd.lower():
+        player.get_inventory()
+
     elif cmd in ("Q", "q", "quit", "exit"):
         exit(0)
+
+    elif cmd in ("?", "help", "h"):
+        available_commands = [
+            "Command List",
+            "n - Move North",
+            "n - Move North",
+            "n - Move North",
+            "n - Move North",
+            "i - View inventory",
+            "take <item> - Take an item from the room",
+            "q - exit the game",
+            "h - display this text",
+        ]
+        for command in available_commands:
+            print_wrap(command)
+
     else:
         pass
 
