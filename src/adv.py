@@ -1,18 +1,9 @@
 from room import Room
 from player import Player
-from textwrap import TextWrapper
+from print_wrap import print_wrap
+from item import Item
 
-# initialize TextWrapper with 40 character width
-wrapper = TextWrapper(
-    initial_indent="  ", subsequent_indent="  ", drop_whitespace=False, width=40
-)
-
-# custom print command for wrapped text
-def print_wrap(text):
-    line_list = wrapper.wrap(text)
-    for line in line_list:
-        print(line)
-
+import re
 
 # Declare all the rooms
 
@@ -54,12 +45,17 @@ room["narrow"].w_to = room["foyer"]
 room["narrow"].n_to = room["treasure"]
 room["treasure"].s_to = room["narrow"]
 
+# create some items
+room["outside"].set_items(Item("map", "I'm a map."))
+room["outside"].set_items(Item("torch", "A fresh torch, should last a while."))
+
 #
 # Main
 #
 
 # Make a new player object that is currently in the 'outside' room.
-player = Player("Mae", room["outside"])
+player_name = input("Character Name? ")
+player = Player(player_name, room["outside"])
 
 # Write a loop that:
 #
@@ -72,38 +68,10 @@ player = Player("Mae", room["outside"])
 #
 # If the user enters "q", quit the game.
 
+# print the room on first load
+print(player.current_room)
+
 while True:
-    move = None
-    room_details = [
-        "****************************",
-        f"Room: {player.current_room.name}",
-        " ",
-        "Details:",
-        f"{player.current_room.description}",
-        " ",
-    ]
+    cmd = input("\n  ~~> ")
 
-    for line in room_details:
-        print_wrap(line)
-
-    # get directions and print them to the screen
-    for line in player.current_room.get_directions():
-        print_wrap(line)
-
-    cmd = input("\n  Enter a command: ")
-
-    if cmd in ("N", "n"):
-        move = player.move(player.current_room.n_to)
-    elif cmd in ("W", "w"):
-        move = player.move(player.current_room.w_to)
-    elif cmd in ("E", "e"):
-        move = player.move(player.current_room.e_to)
-    elif cmd in ("S", "s"):
-        move = player.move(player.current_room.s_to)
-    elif cmd in ("Q", "q", "quit", "exit"):
-        exit(0)
-    else:
-        pass
-
-    if move and "Error" in move:
-        print_wrap(move.replace("Error: ", ""))
+    player.commands(cmd)
